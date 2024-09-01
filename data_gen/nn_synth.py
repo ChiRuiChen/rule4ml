@@ -97,7 +97,8 @@ def keras_to_hls(
         model,
         hls_config=config,
         output_dir=output_dir,
-        backend="VivadoAccelerator",
+        #backend="VivadoAccelerator", # use vitis
+        backend = "Vitis",
         clock_period=clock_period,
         io_type=io_type,
         board=board,
@@ -162,7 +163,8 @@ def torch_to_hls(
         input_shape,
         hls_config=config,
         output_dir=output_dir,
-        backend="VivadoAccelerator",
+        #backend="VivadoAccelerator", # use vitis
+        backend = "Vitis",
         clock_period=clock_period,
         io_type=io_type,
         board=board,
@@ -235,7 +237,22 @@ def synthesize_keras_model(
     )
 
     start_time = datetime.now().strftime("%Y%m%d-%H%M%S")
-    synth_result = hls_model.build(csim=False, synth=True, export=False, bitfile=False)
+    #synth_result = hls_model.build(csim=False, synth=True, export=False, bitfile=False) # use vitis
+    # vitis backend: build(self, model, reset=False, csim=True, synth=True, cosim=False, validation=False, export=False, vsynth=False): # vitis backend has no bitfile argument
+    # vivado accelerator: def build(
+    #        self,
+    #        model,
+    #        reset=False,
+    #        csim=True,
+    #        synth=True,
+    #        cosim=False,
+    #        validation=False,
+    #        export=False,
+    #        vsynth=False,
+    #        fifo_opt=False,
+    #        bitfile=False,
+    #    ):
+    synth_result = hls_model.build(reset=False, csim=False, synth=True, cosim=False, validation=False, export=False, vsynth=False)
     end_time = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     resource_report, latency_report = data_from_synthesis(synth_result)
